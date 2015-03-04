@@ -1,11 +1,11 @@
 var lwip = require('lwip');
 
-const PRESERVE_MATCHES = false;
-const VIZMODE = 'plus';
+const PRESERVE_MATCHES = true;
+const VIZMODE = 'scaledOpacity';
 
-lwip.open('img/dude-100.jpg', function(err, image1){
-  lwip.open('img/dude-90.jpg', function (err, image2) {
-    lwip.create(image1.width(), image1.height(), 'white', function(err, diffImage) {
+lwip.open('img/dude-0.jpg', function(err, image1){
+  lwip.open('img/dude-100.jpg', function (err, image2) {
+    lwip.create(image1.width(), image1.height(), function(err, diffImage) {
       var
         batch = diffImage.batch(),
         pixel1,
@@ -31,6 +31,23 @@ lwip.open('img/dude-100.jpg', function(err, image1){
                   r: Math.abs(pixel2.r - pixel1.r),
                   g: Math.abs(pixel2.g - pixel1.g),
                   b: Math.abs(pixel2.b - pixel1.b)
+                });
+              },
+              scaledOpacity: function () {
+                // Mapping 0 (identical pixel delta) -> 765 (black and white) to 0 -> 100 (opacity)
+
+                var delta =
+                  Math.abs(pixel2.r - pixel1.r) +
+                  Math.abs(pixel2.g - pixel1.g) +
+                  Math.abs(pixel2.b - pixel1.b);
+
+                var scaled = Math.floor( (delta / 765) * 100 );
+
+                batch.setPixel(x, y, {
+                  r: 0,
+                  g: 0,
+                  b: 0,
+                  a: scaled
                 });
               },
               average: function () {
