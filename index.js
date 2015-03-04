@@ -1,10 +1,10 @@
 var lwip = require('lwip');
 
 const PRESERVE_MATCHES = false;
-const VIZMODE = 'average';
+const VIZMODE = 'plus';
 
-lwip.open('img/slicer-gvn-1.png', function(err, image1){
-  lwip.open('img/slicer-gvn-2.png', function (err, image2) {
+lwip.open('img/dude-100.jpg', function(err, image1){
+  lwip.open('img/dude-90.jpg', function (err, image2) {
     lwip.create(image1.width(), image1.height(), 'white', function(err, diffImage) {
       var
         batch = diffImage.batch(),
@@ -42,6 +42,25 @@ lwip.open('img/slicer-gvn-1.png', function(err, image1){
               },
               solid: function () {
                 batch.setPixel(x, y, 'black');
+              },
+              plus: function () {
+                batch.setPixel(x, y, 'black');
+
+                if (x - 1 >= 0) {
+                  batch.setPixel(x - 1, y, 'black');
+                }
+
+                if (x + 1 < image1.width()) {
+                  batch.setPixel(x + 1, y, 'black');
+                }
+
+                if (y - 1 >= 0) {
+                  batch.setPixel(x, y - 1, 'black');
+                }
+
+                if (y + 1 < image1.height()) {
+                  batch.setPixel(x, y + 1, 'black');
+                }
               },
               savedPixel: function () {
                 savedPixel.a = savedPixel.a > 0 ? Math.floor(savedPixel.a - 1) : 0; // Fade out
