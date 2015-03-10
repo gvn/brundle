@@ -1,10 +1,11 @@
 var lwip = require('lwip');
 
-const PRESERVE_MATCHES = true;
-const VIZMODE = 'scaledOpacity';
+const PRESERVE_MATCHES = false;
+const VIZMODE = 'savedPixel';
+const DIFFMODE = 'any'; // 'strict', 'any'
 
-lwip.open('img/dude-0.jpg', function(err, image1){
-  lwip.open('img/dude-100.jpg', function (err, image2) {
+lwip.open('img/lx-0.jpg', function(err, image1){
+  lwip.open('img/lx-100.jpg', function (err, image2) {
     lwip.create(image1.width(), image1.height(), function(err, diffImage) {
       var
         batch = diffImage.batch(),
@@ -18,7 +19,16 @@ lwip.open('img/dude-0.jpg', function(err, image1){
           pixel1 = image1.getPixel(x,y);
           pixel2 = image2.getPixel(x,y);
 
-          if (pixel1.r === pixel2.r && pixel1.g === pixel2.g && pixel1.b === pixel2.b) {
+          var diffChecks = {
+            strict: function () {
+              return (pixel1.r === pixel2.r && pixel1.g === pixel2.g && pixel1.b === pixel2.b);
+            },
+            any: function () {
+              return (pixel1.r === pixel2.r || pixel1.g === pixel2.g || pixel1.b === pixel2.b);
+            }
+          };
+
+          if ( diffChecks[DIFFMODE]() ) {
             if (PRESERVE_MATCHES) {
               batch.setPixel(x, y, pixel1);
             }
@@ -60,6 +70,9 @@ lwip.open('img/dude-0.jpg', function(err, image1){
               solid: function () {
                 batch.setPixel(x, y, 'black');
               },
+              original: function () {
+                batch.setPixel(x, y, pixel1);
+              },
               plus: function () {
                 batch.setPixel(x, y, 'black');
 
@@ -82,7 +95,8 @@ lwip.open('img/dude-0.jpg', function(err, image1){
               savedPixel: function () {
                 savedPixel.a = savedPixel.a > 0 ? Math.floor(savedPixel.a - 1) : 0; // Fade out
                 batch.setPixel(x, y, savedPixel);
-              }
+              },
+              empty: function () {}
             })[VIZMODE]();
           }
         }
