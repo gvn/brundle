@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "commander": "2.7.1",
     "lwip": "0.0.6"
   }
 }

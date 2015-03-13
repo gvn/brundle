@@ -1,11 +1,24 @@
 var lwip = require('lwip');
+var program = require('commander');
 
-const PRESERVE_MATCHES = false;
-const VIZMODE = 'savedPixel';
-const DIFFMODE = 'any'; // 'strict', 'any'
+program
+  .version('1.0.0')
+  .usage('image1 image2 [options]')
+  .option('-p, --preserve-matches', 'Display equivalent pixels.')
+  .option('-m, --mode [type]', 'Specify the visualization type for differing pixels. [solid]', 'solid')
+  .option('-d, --diffmode [type]', 'Specify the mode in which differences are calculated. [strict]', 'strict')
+  .parse(process.argv);
 
-lwip.open('img/lx-0.jpg', function(err, image1){
-  lwip.open('img/lx-100.jpg', function (err, image2) {
+if (!program.args.length) {
+  program.help();
+}
+
+const PRESERVE_MATCHES = program.preserveMatches || false;
+const VIZMODE = program.mode;
+const DIFFMODE = program.diffmode; // 'strict' or 'any'
+
+lwip.open(program.args[0], function(err, image1){
+  lwip.open(program.args[1], function (err, image2) {
     lwip.create(image1.width(), image1.height(), function(err, diffImage) {
       var
         batch = diffImage.batch(),
