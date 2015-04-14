@@ -1,5 +1,8 @@
+#!/usr/bin/env node
+
 var lwip = require('lwip');
 var program = require('commander');
+var colors = require('colors');
 
 program
   .version('1.0.0')
@@ -16,6 +19,15 @@ if (!program.args.length) {
 const PRESERVE_MATCHES = program.preserveMatches || false;
 const VIZMODE = program.mode;
 const DIFFMODE = program.diffmode; // 'strict' or 'any'
+
+const IMAGE1_PATH = program.args[0];
+const IMAGE2_PATH = program.args[1];
+const OUTPUT_PATH = program.args[2] || 'diff.png';
+
+if (!IMAGE1_PATH || !IMAGE2_PATH) {
+  console.error('Missing a path! 2 image paths are required for comparison.'.red.bold);
+  process.exit(1);
+}
 
 lwip.open(program.args[0], function(err, image1){
   lwip.open(program.args[1], function (err, image2) {
@@ -116,9 +128,9 @@ lwip.open(program.args[0], function(err, image1){
         console.log('Finished row ' + (y + 1) + ' of ' + image1.height());
       }
 
-      batch.writeFile('img/diff.png', function (err) {
+      batch.writeFile(OUTPUT_PATH, function (err) {
         if (err) {
-          console.error(err);
+          console.error(err.red);
         }
       });
     });
