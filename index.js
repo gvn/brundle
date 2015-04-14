@@ -24,6 +24,8 @@ const IMAGE1_PATH = program.args[0];
 const IMAGE2_PATH = program.args[1];
 const OUTPUT_PATH = program.args[2] || 'diff.png';
 
+var startTime = Date.now();
+
 if (!IMAGE1_PATH || !IMAGE2_PATH) {
   console.error('Missing a path! 2 image paths are required for comparison.'.red.bold);
   process.exit(1);
@@ -54,12 +56,16 @@ lwip.open(program.args[0], function(err, image1){
           };
 
           if ( diffChecks[DIFFMODE]() ) {
+            // Equal pixels
+
             if (PRESERVE_MATCHES) {
               batch.setPixel(x, y, pixel1);
             }
 
             savedPixel = pixel1;
           } else {
+            // Differing pixels
+
             ({
               difference: function () {
                 batch.setPixel(x, y, {
@@ -131,6 +137,8 @@ lwip.open(program.args[0], function(err, image1){
       batch.writeFile(OUTPUT_PATH, function (err) {
         if (err) {
           console.error(err.red);
+        } else {
+          console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
         }
       });
     });
