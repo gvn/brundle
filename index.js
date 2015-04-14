@@ -40,7 +40,7 @@ lwip.open(program.args[0], function(err, image1){
         pixel2,
         savedPixel = image1.getPixel(0,0);
 
-      for (var y = 0; y < image1.height(); y++) {
+      for (var y = 0, yy = image1.height(); y < yy; y++) {
         for (var x = image1.width() - 1; x > 0; x--) {
 
           pixel1 = image1.getPixel(x,y);
