@@ -6,7 +6,7 @@ var colors = require('colors');
 
 program
   .version('1.0.0')
-  .usage('image1 image2 [options]')
+  .usage('image1 image2 output-path [options]')
   .option('-p, --preserve-matches', 'Display equivalent pixels.')
   .option('-m, --mode [type]', 'Specify the visualization type for differing pixels. [solid]', 'solid')
   .option('-d, --diffmode [type]', 'Specify the mode in which differences are calculated. [strict]', 'strict')
@@ -131,7 +131,7 @@ lwip.open(program.args[0], function(err, image1){
             })[VIZMODE]();
           }
         }
-        console.log('Finished row ' + (y + 1) + ' of ' + image1.height());
+        console.log('Processed row ' + colors.bold(y + 1) + ' of ' + image1.height());
       }
 
       batch.writeFile(OUTPUT_PATH, function (err) {
