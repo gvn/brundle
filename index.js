@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
 var lwip = require('lwip');
 var program = require('commander');
 var colors = require('colors');
@@ -10,6 +11,7 @@ program
   .option('-p, --preserve-matches', 'Display equivalent pixels.')
   .option('-m, --mode [type]', 'Specify the visualization type for differing pixels. [solid]', 'solid')
   .option('-d, --diffmode [type]', 'Specify the mode in which differences are calculated. [strict]', 'strict')
+  .option('-a, --analyze-only', 'Only generate JSON representing varying pixels. [false]', false)
   .parse(process.argv);
 
 if (!program.args.length) {
@@ -19,12 +21,14 @@ if (!program.args.length) {
 const PRESERVE_MATCHES = program.preserveMatches || false;
 const VIZMODE = program.mode;
 const DIFFMODE = program.diffmode; // 'strict' or 'any'
+const ANALYZE_ONLY = program.analyzeOnly;
 
 const IMAGE1_PATH = program.args[0];
 const IMAGE2_PATH = program.args[1];
-const OUTPUT_PATH = program.args[2] || 'diff.png';
+const OUTPUT_PATH = program.args[2] || (program.analyzeOnly ? 'diff.json' : 'diff.png');
 
 var startTime = Date.now();
+var diffData; // For JSON export
 
 if (!IMAGE1_PATH || !IMAGE2_PATH) {
   console.error('Missing a path! 2 image paths are required for comparison.'.red.bold);
@@ -33,6 +37,14 @@ if (!IMAGE1_PATH || !IMAGE2_PATH) {
 
 lwip.open(program.args[0], function(err, image1){
   lwip.open(program.args[1], function (err, image2) {
+    if (ANALYZE_ONLY) {
+      var diffData = {
+        width: image1.width(),
+        height: image1.height(),
+        differences: []
+      };
+    }
+
     lwip.create(image1.width(), image1.height(), function(err, diffImage) {
       var
         batch = diffImage.batch(),
@@ -58,7 +70,7 @@ lwip.open(program.args[0], function(err, image1){
           if ( diffChecks[DIFFMODE]() ) {
             // Equal pixels
 
-            if (PRESERVE_MATCHES) {
+            if (!ANALYZE_ONLY && PRESERVE_MATCHES) {
               batch.setPixel(x, y, pixel1);
             }
 
@@ -66,7 +78,7 @@ lwip.open(program.args[0], function(err, image1){
           } else {
             // Differing pixels
 
-            ({
+            var vizModes = {
               difference: function () {
                 batch.setPixel(x, y, {
                   r: Math.abs(pixel2.r - pixel1.r),
@@ -128,19 +140,49 @@ lwip.open(program.args[0], function(err, image1){
                 batch.setPixel(x, y, savedPixel);
               },
               empty: function () {}
-            })[VIZMODE]();
+            }
+
+            if (ANALYZE_ONLY) {
+              // Append to JSON for export
+              diffData.differences.push({
+                x: x,
+                y: y,
+                pixel1: {
+                  r: pixel1.r,
+                  g: pixel1.g,
+                  b: pixel1.b
+                },
+                pixel2: {
+                  r: pixel2.r,
+                  g: pixel2.g,
+                  b: pixel2.b
+                }
+              });
+            } else {
+              vizModes[VIZMODE]();
+            }
           }
         }
         console.log('Processed row ' + colors.bold(y + 1) + ' of ' + image1.height());
       }
 
-      batch.writeFile(OUTPUT_PATH, function (err) {
-        if (err) {
-          console.error(err.red);
-        } else {
-          console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
-        }
-      });
+      console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
+
+      if (ANALYZE_ONLY) {
+        fs.writeFile(OUTPUT_PATH, JSON.stringify(diffData), function(err) {
+          if(err) {
+            return console.log(err);
+          }
+
+          console.log("Saved JSON: " + OUTPUT_PATH);
+        });
+      } else {
+        batch.writeFile(OUTPUT_PATH, function (err) {
+          if (err) {
+            console.error(err.red);
+          }
+        });
+      }
     });
   });
 });
