@@ -166,7 +166,7 @@ lwip.open(program.args[0], function(err, image1){
         console.log('Processed row ' + colors.bold(y + 1) + ' of ' + image1.height());
       }
 
-      console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
+
 
       if (ANALYZE_ONLY) {
         fs.writeFile(OUTPUT_PATH, JSON.stringify(diffData), function(err) {
@@ -174,6 +174,7 @@ lwip.open(program.args[0], function(err, image1){
             return console.log(err);
           }
 
+          console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
           console.log("Saved JSON: " + OUTPUT_PATH);
         });
       } else {
@@ -181,6 +182,8 @@ lwip.open(program.args[0], function(err, image1){
           if (err) {
             console.error(err.red);
           }
+
+          console.log(colors.bold.green('Processing Time: ') + ((Date.now() - startTime) / 1000) + ' seconds');
         });
       }
     });
