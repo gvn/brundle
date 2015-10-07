@@ -1,11 +1,11 @@
 {
-  "name": "gdif",
+  "name": "brundle",
   "bin": {
-    "gdif": "./index.js"
+    "brundle": "./index.js"
   },
   "preferGlobal": true,
   "version": "1.0.0",
-  "description": "Interpretive Graphical Diff Utility",
+  "description": "An interpretive graphical diffing utility.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
