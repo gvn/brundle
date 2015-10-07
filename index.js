@@ -41,7 +41,7 @@ lwip.open(program.args[0], function(err, image1){
       var diffData = {
         width: image1.width(),
         height: image1.height(),
-        differences: []
+        points: []
       };
     }
 
@@ -144,7 +144,7 @@ lwip.open(program.args[0], function(err, image1){
 
             if (ANALYZE_ONLY) {
               // Append to JSON for export
-              diffData.differences.push({
+              diffData.points.push({
                 x: x,
                 y: y,
                 pixel1: {
