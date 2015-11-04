@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Gavin Lazar Suntop - @gvn",
   "license": "ISC",
   "dependencies": {
     "colors": "1.1.2",
